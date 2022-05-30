@@ -250,11 +250,6 @@ class ItemRepositoryImpl implements ItemRepository {
         if (FileHelper.notExists(itemPath))
             return null;
         try {
-            // TODO move to trash when delete ?
-//            if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.MOVE_TO_TRASH)
-//                    && Desktop.getDesktop().moveToTrash(itemPath.toFile())) {
-//                return null;
-//            }
             if (Files.isDirectory(itemPath)) {
                 Files.walk(itemPath)
                         .sorted(Comparator.reverseOrder())

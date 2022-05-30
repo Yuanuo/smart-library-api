@@ -17,12 +17,6 @@ public interface ItemProvider {
     default String toCleanName(String itemName) {
         return itemName;
     }
-//
-//    Consumer<Item> getCreator();
-//
-//    Function<Item, Object> getEditor();
-//
-//    Function<Item, Object> getViewer();
 
     default void touching(Item item) {
     }
