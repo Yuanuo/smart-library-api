@@ -9,8 +9,8 @@ import java.nio.file.Path;
 public final class ItemsDao {
     private static ItemRepository itemRepository;
 
-    public static void setupInitialize(Path root) {
-        itemRepository = null != itemRepository ? itemRepository : new ItemRepositoryImpl(root);
+    public static void setupInitialize(Path repo, Item root) {
+        itemRepository = null != itemRepository ? itemRepository : new ItemRepositoryImpl(repo, root);
     }
 
     public static ItemRepository items() {

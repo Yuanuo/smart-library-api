@@ -23,12 +23,12 @@ import static org.appxi.smartlib.ItemHelper.P_INDEXED_NAME;
 public class MindmapProvider extends AbstractProvider {
     public static final MindmapProvider ONE = new MindmapProvider();
 
-    private MindmapProvider() {
+    MindmapProvider() {
     }
 
     @Override
     public String providerId() {
-        return "km.json";
+        return "kmind";
     }
 
     @Override

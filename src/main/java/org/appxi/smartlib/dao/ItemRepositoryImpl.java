@@ -33,18 +33,20 @@ import java.util.zip.ZipOutputStream;
 
 class ItemRepositoryImpl implements ItemRepository {
     private final Logger logger = LoggerFactory.getLogger(ItemRepositoryImpl.class);
-    private final Path root;
+    private final Path repo;
     private final int rootLevels;
+    private final Item root;
 
-    public ItemRepositoryImpl(Path root) {
+    public ItemRepositoryImpl(Path repo, Item root) {
+        this.repo = repo;
+        this.rootLevels = repo.getNameCount();
         this.root = root;
-        this.rootLevels = root.getNameCount();
     }
 
     @Override
     public List<Item> list(Item parent) {
         final List<Item> result = new ArrayList<>();
-        final Path parentPath = root.resolve(parent.getPath());
+        final Path parentPath = repo.resolve(parent.getPath());
 
         if (Files.notExists(parentPath) || !Files.isReadable(parentPath) || !Files.isDirectory(parentPath))
             return result;
@@ -62,7 +64,7 @@ class ItemRepositoryImpl implements ItemRepository {
 
     @Override
     public Item resolve(String itemPath) {
-        return toItem(root.resolve(itemPath.replaceAll("\\.\\./", "")));
+        return toItem(repo.resolve(itemPath.replaceAll("\\.\\./", "")));
     }
 
     private Item toItem(Path path) {
@@ -99,12 +101,12 @@ class ItemRepositoryImpl implements ItemRepository {
 //                    item.setName("Unknown - ".concat(item.getName()));
             itemProvider = Files.isDirectory(path) ? FolderProvider.ONE : FileProvider.ONE;
         }
-        return new Item(itemName, itemPath, itemProvider);
+        return root.clone(itemName, itemPath, itemProvider);
     }
 
     @Override
     public String walk(Item parent, Consumer<Item> consumer) {
-        final Path parentPath = root.resolve(parent.getPath());
+        final Path parentPath = repo.resolve(parent.getPath());
 
         if (Files.notExists(parentPath))
             return "文件或目录不存在";
@@ -144,14 +146,14 @@ class ItemRepositoryImpl implements ItemRepository {
 
     @Override
     public boolean exists(String itemPath) {
-        final Path path = root.resolve(itemPath);
-        return FileHelper.exists(path) && path.startsWith(root);
+        final Path path = repo.resolve(itemPath);
+        return FileHelper.exists(path) && path.startsWith(repo);
     }
 
     @Override
     public List<String> exists(String itemPath, String newParent) {
-        final Path sourcePath = root.resolve(itemPath);
-        final Path targetPath = root.resolve(newParent);
+        final Path sourcePath = repo.resolve(itemPath);
+        final Path targetPath = repo.resolve(newParent);
 
         if (Files.isRegularFile(sourcePath)) {
             Path temp = targetPath.resolve(sourcePath.getFileName());
@@ -181,7 +183,7 @@ class ItemRepositoryImpl implements ItemRepository {
 
     @Override
     public File filePath(Item item) {
-        return null == item || item.isRoot() ? root.toFile() : root.resolve(item.getPath()).toFile();
+        return null == item || item.isRoot() ? repo.toFile() : repo.resolve(item.getPath()).toFile();
     }
 
     @Override
@@ -189,7 +191,7 @@ class ItemRepositoryImpl implements ItemRepository {
         if (!FileHelper.isNameValid(item.getName()))
             return "格式错误！可能包含特殊字符，请修改后重试。";
 
-        Path itemPath = root.resolve(item.getPath()).getParent();
+        Path itemPath = repo.resolve(item.getPath()).getParent();
         itemPath = itemPath.resolve(ItemHelper.getNameWithProvider(item.getName(), item.provider.providerId()));
 
         if (FileHelper.exists(itemPath)) {
@@ -221,11 +223,11 @@ class ItemRepositoryImpl implements ItemRepository {
         if (!FileHelper.isNameValid(newName))
             return "格式错误！可能包含特殊字符，请修改后重试。";
 
-        final Path sourcePath = root.resolve(item.getPath());
+        final Path sourcePath = repo.resolve(item.getPath());
         if (FileHelper.notExists(sourcePath))
             return "源文件或目录不存在！";
 
-        Path targetPath = root.resolve(item.getPath()).getParent();
+        Path targetPath = repo.resolve(item.getPath()).getParent();
         targetPath = targetPath.resolve(ItemHelper.getNameWithProvider(newName, item.provider.providerId()));
         if (FileHelper.exists(targetPath))
             return "目标文件或目录已存在，不能覆盖！";
@@ -246,7 +248,7 @@ class ItemRepositoryImpl implements ItemRepository {
 
     @Override
     public String delete(Item item, BiConsumer<Double, String> progressCallback) {
-        final Path itemPath = root.resolve(item.getPath());
+        final Path itemPath = repo.resolve(item.getPath());
         if (FileHelper.notExists(itemPath))
             return null;
         try {
@@ -274,7 +276,7 @@ class ItemRepositoryImpl implements ItemRepository {
 
     @Override
     public String setContent(Item item, InputStream content) {
-        final Path itemPath = root.resolve(item.getPath());
+        final Path itemPath = repo.resolve(item.getPath());
         if (Files.isDirectory(itemPath)) {
             return null;//
         } else {
@@ -293,7 +295,7 @@ class ItemRepositoryImpl implements ItemRepository {
 
     @Override
     public InputStream getContent(Item item) {
-        final Path itemPath = root.resolve(item.getPath());
+        final Path itemPath = repo.resolve(item.getPath());
         if (Files.isDirectory(itemPath)) {
             return null;//
         } else {
@@ -336,12 +338,12 @@ class ItemRepositoryImpl implements ItemRepository {
         zipFile.stream().forEach(entry -> {
             final String entryPath = base.concat(entry.getName());
             if (entry.isDirectory()) {
-                FileHelper.makeDirs(root.resolve(entryPath));
+                FileHelper.makeDirs(repo.resolve(entryPath));
                 return;
             }
             try {
                 progressCallback.accept(-1D, entryPath);
-                final Path target = root.resolve(entryPath);
+                final Path target = repo.resolve(entryPath);
                 FileHelper.makeParents(target);
                 Files.copy(zipFile.getInputStream(entry), target, StandardCopyOption.REPLACE_EXISTING);
             } catch (IOException e) {
@@ -353,13 +355,13 @@ class ItemRepositoryImpl implements ItemRepository {
 
     @Override
     public String getIdentificationInfo(Item item) {
-        return FileHelper.getIdentificationInfo(root.resolve(item.getPath()));
+        return FileHelper.getIdentificationInfo(repo.resolve(item.getPath()));
     }
 
     @Override
     public String move(Item item, Item newParent) {
-        final Path sourcePath = root.resolve(item.getPath());
-        final Path targetPath = root.resolve(newParent.getPath()).resolve(sourcePath.getFileName());
+        final Path sourcePath = repo.resolve(item.getPath());
+        final Path targetPath = repo.resolve(newParent.getPath()).resolve(sourcePath.getFileName());
 
         try {
             Files.move(sourcePath, targetPath, StandardCopyOption.REPLACE_EXISTING);

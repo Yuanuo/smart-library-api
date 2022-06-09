@@ -1,47 +1,27 @@
 package org.appxi.smartlib;
 
-import org.appxi.property.StrProperty;
 import org.appxi.util.ext.Attributes;
 
 import java.util.Objects;
 
-public class Item extends Attributes {
-    public static final Item ROOT = new Item("ROOT", "", FolderProvider.ONE);
-
-    public final StrProperty name, path;
+public abstract class Item extends Attributes {
     public final ItemProvider provider;
 
     public Item(ItemProvider provider) {
-        this(null, null, provider);
-    }
-
-    public Item(String name, String path, ItemProvider provider) {
-        this.name = new StrProperty(name);
-        this.path = new StrProperty(path);
         this.provider = provider;
     }
 
-    public Item setName(String name) {
-        this.name.set(name);
-        return this;
-    }
+    public abstract Item setName(String name);
 
-    public String getName() {
-        return this.name.get();
-    }
+    public abstract String getName();
 
-    public Item setPath(String path) {
-        this.path.set(path);
-        return this;
-    }
+    public abstract Item setPath(String path);
 
-    public String getPath() {
-        return this.path.get();
-    }
+    public abstract String getPath();
 
     @Override
     public String toString() {
-        return this.name.get();
+        return this.getName();
     }
 
     public String toName() {
@@ -49,7 +29,7 @@ public class Item extends Attributes {
     }
 
     public String toDetail() {
-        return "【" + this.provider.providerName() + "】: /" + this.path.get();
+        return "【" + this.provider.providerName() + "】: /" + this.getPath();
     }
 
     @Override
@@ -67,13 +47,17 @@ public class Item extends Attributes {
 
     @Override
     public Item clone() {
-        return new Item(this.getName(), this.getPath(), this.provider);
+        return clone(this.getName(), this.getPath(), this.provider);
     }
+
+    public abstract Item clone(String name, String path, ItemProvider provider);
+
+    public abstract Item root();
 
     /* ============================================================================================= */
 
     public final boolean isRoot() {
-        return this == ROOT || ROOT.getPath().equals(this.getPath());
+        return this == root() || root().getPath().equals(this.getPath());
     }
 
     public final boolean isFolder() {
@@ -83,15 +67,15 @@ public class Item extends Attributes {
     public final Item parentItem() {
         String parentPath = this.parentPath();
         if (parentPath.isBlank())
-            return ROOT;
+            return root();
 
         int idx = parentPath.lastIndexOf('/');
         String parentName = parentPath.substring(idx + 1);
-        return new Item(parentName, parentPath, FolderProvider.ONE);
+        return clone(parentName, parentPath, FolderProvider.ONE);
     }
 
     public final String parentPath() {
-        String path = this.path.get();
+        String path = this.getPath();
         int idx = path.lastIndexOf('/');
         return idx > 0 ? path.substring(0, idx) : "";
     }
