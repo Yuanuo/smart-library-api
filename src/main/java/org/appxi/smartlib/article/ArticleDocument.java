@@ -151,27 +151,7 @@ public class ArticleDocument implements MetadataApi {
         buff.append(Locale.getDefault().getLanguage());
         buff.append("\"><head><meta charset=\"UTF-8\">");
         //
-        final List<String> scripts = new ArrayList<>(), styles = new ArrayList<>();
-        for (String include : includes) {
-            if (include.endsWith(".js")) {
-                buff.append("\r\n<script type=\"text/javascript\" src=\"").append(include).append("\"></script>");
-            } else if (include.endsWith(".css")) {
-                buff.append("\r\n<link rel=\"stylesheet\" href=\"").append(include).append("\"/>");
-            } else if (include.startsWith("<script") || include.startsWith("<style")
-                    || include.startsWith("<link") || include.startsWith("<meta")) {
-                buff.append("\r\n").append(include);
-            } else if (include.startsWith("var ") || include.startsWith("function")) {
-                scripts.add(include);
-            } else {
-                styles.add(include);
-            }
-        }
-        if (!scripts.isEmpty()) {
-            buff.append("\r\n<script type=\"text/javascript\">").append(StringHelper.joinLines(scripts)).append("</script>");
-        }
-        if (!styles.isEmpty()) {
-            buff.append("\r\n<style type=\"text/css\">").append(StringHelper.joinLines(styles)).append("</style>");
-        }
+        StringHelper.buildWebIncludes(buff, List.of(includes));
         //
         buff.append("</head>");
         if (null == bodyWrapper) {
