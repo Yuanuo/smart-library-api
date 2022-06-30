@@ -33,10 +33,17 @@ public interface PiecesRepository extends PieceRepository {
                 "field_album_s", "field_authors_s", "field_sequence_s", "field_anchor_s", "text_txt_aio_sub");
 
         //
-        if (null != scopes && !scopes.isEmpty())
-            query.addFilterQuery(new SimpleFilterQuery(Criteria.where("path_descendent_path").is(scopes)));
-//            scopes.forEach(s -> query.addFilterQuery(new SimpleFilterQuery(
-//                    new SimpleStringCriteria("path_s:" + PieceRepository.wrapWhitespace(s) + "*"))));
+        if (null != scopes && !scopes.isEmpty()) {
+            Criteria criteria = null;
+            for (String scope : scopes) {
+                if (null == criteria) {
+                    criteria = Criteria.where("path_descendent_path").is(scope);
+                } else {
+                    criteria = criteria.or("path_descendent_path").is(scope);
+                }
+            }
+            query.addFilterQuery(new SimpleFilterQuery(criteria));
+        }
         //
         if (null != types && !types.isEmpty())
             query.addFilterQuery(new SimpleFilterQuery(Criteria.where("type_s").is(types)));
@@ -50,9 +57,11 @@ public interface PiecesRepository extends PieceRepository {
         query.addCriteria(new SimpleStringCriteria(queryString));
 
         if (null != categories && !categories.isEmpty()) {
-            query.addFilterQuery(new SimpleFilterQuery(new SimpleStringCriteria("category_ss:(" +
+            query.addFilterQuery(new SimpleFilterQuery(new SimpleStringCriteria(
+                    "category_ss:(" +
                     categories.stream().map(PieceRepository::wrapWhitespace).collect(Collectors.joining(" OR "))
-                    + ")")));
+                    + ")"
+            )));
         }
 
         if (facet) {
@@ -86,8 +95,17 @@ public interface PiecesRepository extends PieceRepository {
         );
 
         //
-        if (null != scopes && !scopes.isEmpty())
-            query.addFilterQuery(new SimpleFilterQuery(Criteria.where("path_descendent_path").is(scopes)));
+        if (null != scopes && !scopes.isEmpty()) {
+            Criteria criteria = null;
+            for (String scope : scopes) {
+                if (null == criteria) {
+                    criteria = Criteria.where("path_descendent_path").is(scope);
+                } else {
+                    criteria = criteria.or("path_descendent_path").is(scope);
+                }
+            }
+            query.addFilterQuery(new SimpleFilterQuery(criteria));
+        }
         //
         if (null != types && !types.isEmpty())
             query.addFilterQuery(new SimpleFilterQuery(Criteria.where("type_s").is(types)));
@@ -101,9 +119,11 @@ public interface PiecesRepository extends PieceRepository {
         query.addCriteria(new SimpleStringCriteria(queryString));
 
         if (null != categories && !categories.isEmpty()) {
-            query.addFilterQuery(new SimpleFilterQuery(new SimpleStringCriteria("category_ss:(" +
+            query.addFilterQuery(new SimpleFilterQuery(new SimpleStringCriteria(
+                    "category_ss:(" +
                     categories.stream().map(PieceRepository::wrapWhitespace).collect(Collectors.joining(" OR "))
-                    + ")")));
+                    + ")"
+            )));
         }
 
         final SolrTemplate solrTemplate = ItemsDao.solrTemplate();
