@@ -22,6 +22,12 @@ import java.util.stream.Collectors;
 
 @Repository
 public interface PiecesRepository extends PieceRepository {
+    static String escapeChars(String str) {
+        str = PieceRepository.wrapWhitespace(str);
+        str = str.replace("(", "\\(").replace(")", "\\)");
+        return str;
+    }
+
     default FacetAndHighlightPage<Piece> search(Collection<String> scopes, Collection<String> types,
                                                 final String input,
                                                 Collection<String> categories, boolean facet, Pageable pageable) {
@@ -59,7 +65,7 @@ public interface PiecesRepository extends PieceRepository {
         if (null != categories && !categories.isEmpty()) {
             query.addFilterQuery(new SimpleFilterQuery(new SimpleStringCriteria(
                     "category_ss:(" +
-                    categories.stream().map(PieceRepository::wrapWhitespace).collect(Collectors.joining(" OR "))
+                    categories.stream().map(PiecesRepository::escapeChars).collect(Collectors.joining(" OR "))
                     + ")"
             )));
         }
@@ -121,7 +127,7 @@ public interface PiecesRepository extends PieceRepository {
         if (null != categories && !categories.isEmpty()) {
             query.addFilterQuery(new SimpleFilterQuery(new SimpleStringCriteria(
                     "category_ss:(" +
-                    categories.stream().map(PieceRepository::wrapWhitespace).collect(Collectors.joining(" OR "))
+                    categories.stream().map(PiecesRepository::escapeChars).collect(Collectors.joining(" OR "))
                     + ")"
             )));
         }
