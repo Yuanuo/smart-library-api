@@ -400,7 +400,7 @@ class ItemRepositoryImpl implements ItemRepository {
             final List<Piece> batchList = new ArrayList<>(30);
             this.walk(item, itm -> {
                 progressCallback.accept(-1D, itm.toDetail());
-                final List<Piece> pieces = item.provider.indexing(itm);
+                final List<Piece> pieces = itm.provider.indexing(itm);
                 if (null == pieces || pieces.isEmpty())
                     return;
                 batchList.addAll(pieces);
