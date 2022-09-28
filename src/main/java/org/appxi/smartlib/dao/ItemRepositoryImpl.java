@@ -214,7 +214,7 @@ class ItemRepositoryImpl implements ItemRepository {
             return "本地文件禁止访问！";
         } catch (Exception e) {
             logger.warn("create", e);
-            return e.getClass().getName().concat(": ").concat(e.getMessage());
+            return e.getClass().getName() + ": " + e.getMessage();
         }
     }
 
@@ -242,7 +242,7 @@ class ItemRepositoryImpl implements ItemRepository {
             return "文件或目录禁止访问！";
         } catch (Exception e) {
             logger.warn("rename", e);
-            return e.getClass().getName().concat(": ").concat(e.getMessage());
+            return e.getClass().getName() + ": " + e.getMessage();
         }
     }
 
@@ -269,7 +269,7 @@ class ItemRepositoryImpl implements ItemRepository {
             return "文件或目录禁止访问！";
         } catch (Exception e) {
             logger.warn("delete", e);
-            return e.getClass().getName().concat(": ").concat(e.getMessage());
+            return e.getClass().getName() + ": " + e.getMessage();
         }
         return FileHelper.notExists(itemPath) ? null : "无法删除一些文件或目录！";
     }
@@ -288,7 +288,7 @@ class ItemRepositoryImpl implements ItemRepository {
                 return "文件或目录禁止访问！";
             } catch (Exception e) {
                 logger.warn("setContent", e);
-                return e.getClass().getName().concat(": ").concat(e.getMessage());
+                return e.getClass().getName() + ": " + e.getMessage();
             }
         }
     }
@@ -369,7 +369,7 @@ class ItemRepositoryImpl implements ItemRepository {
             return null;
         } catch (Exception e) {
             logger.warn("move", e);
-            return e.getClass().getName().concat(": ").concat(e.getMessage());
+            return e.getClass().getName() + ": " + e.getMessage();
         }
     }
 
