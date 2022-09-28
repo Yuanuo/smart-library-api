@@ -253,8 +253,10 @@ class ItemRepositoryImpl implements ItemRepository {
             return null;
         try {
             if (Files.isDirectory(itemPath)) {
+                final String ignoredFlag = File.separator + ".";
                 Files.walk(itemPath)
                         .sorted(Comparator.reverseOrder())
+                        .filter(path -> path.getNameCount() > rootLevels && !path.toString().contains(ignoredFlag))
                         .map(path -> {
                             progressCallback.accept(-1D, FileHelper.subPath(path, rootLevels));
                             return path.toFile();
