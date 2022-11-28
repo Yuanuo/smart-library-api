@@ -15,7 +15,7 @@ public class MindmapOldProvider extends MindmapProvider {
 
     @Override
     public String providerName() {
-        return "脑图（旧版）";
+        return "导图（旧版）";
     }
 
     @Override

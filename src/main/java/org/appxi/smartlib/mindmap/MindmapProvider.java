@@ -33,7 +33,7 @@ public class MindmapProvider extends AbstractProvider {
 
     @Override
     public String providerName() {
-        return "脑图";
+        return "导图";
     }
 
     @Override
