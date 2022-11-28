@@ -22,6 +22,7 @@ class BeansConfig {
     @Bean
     SolrClient solrClient() throws Exception {
         System.setProperty("solr.dns.prevent.reverse.lookup", "true");
+        System.setProperty("solr.install.dir", solrHome.toString());
 
         FileHelper.makeDirs(solrHome);
         final NodeConfig config = new NodeConfig.NodeConfigBuilder(Piece.REPO, solrHome)
